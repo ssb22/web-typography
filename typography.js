@@ -1,4 +1,4 @@
-// Web page typography helper v1.27 (c) 2011-2014,2016,2019 Silas S. Brown.
+// Web page typography helper v1.28 (c) 2011-2014,2016,2019 Silas S. Brown.
 // @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-v3-or-Later
 
 // Purpose: Adds typographical characters to your Web pages ONLY IF the
@@ -37,6 +37,7 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
   
   var b=document.getElementsByTagName("BODY")[0],
       d=document.createElement("DIV"),s=document.createElement("SPAN");
+    s.setAttribute("lang","en"); // some systems don't make em-dash wider than en-dash in Chinese etc
   d.appendChild(s);
   var supports_dashes = false, supports_ligatures = false;
   if (do_punctuation) {
@@ -44,7 +45,7 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
     b.appendChild(d); var emWidth = s.offsetWidth; b.removeChild(d);
     s.innerHTML = "\u2013";
     b.appendChild(d); var enWidth = s.offsetWidth; b.removeChild(d);
-    supports_dashes = emWidth > enWidth;
+    supports_dashes = emWidth > enWidth; // If they're both the same, they could both be "tofu blocks" on an old system, so play safe and do typography only if we see a difference here
   } if (do_ligatures) {
     s.innerHTML = "\ufb01";
     b.appendChild(d); var fiWidth = s.offsetWidth; b.removeChild(d);
