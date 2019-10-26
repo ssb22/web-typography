@@ -56,7 +56,7 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
   if (supports_dashes || supports_ligatures) {
   function typefix(str) {
       if (supports_dashes) str=str.replace(/'neath /g,"\u2019neath ").replace(/'s /g,"\u2019s ").replace(/---/g,"\u2014").replace(/--/g,"\u2013").replace(/\u2013>/g,"-->").replace(/<!\u2013/g,"<!--").replace(/[ \n]'/g," \u2018").replace(/``/g,"\u201C").replace(/`/g,"\u2018").replace(/^''([a-zA-Z])/,"\u201C$1").replace(/^'([a-zA-Z])/,"\u2018$1").replace(/''/g,"\u201D").replace(/'/g,"\u2019").replace(/[ \n]"/g," \u201C").replace(/^"([a-zA-Z])/,"\u201C$1").replace(/\("/g,"(\u201C").replace(/"/g,"\u201D").replace(/\=\u201D([^\u201D]*)\u201D/g,'="$1"');
-    // - comments and = stuff are for OIH markup; may still get problems if OIH contains kbd/samp/var/tt/pre/code with -- (in this case try inserting comments in between the hyphens), ligatures (ditto), or quotes (and can't work around by using &quot; - try adding 'undo' exceptions to the end, or make sure the 'hide' code goes AFTER the inclusion of typography.js)
+    // - comments and = stuff are for OIH markup; may still get problems if OIH contains kbd/samp/var/tt/pre/code with -- or fi etc (in this case try inserting comments in between the hyphens), ligatures (ditto), or quotes (and can't work around by using &quot; - try adding 'undo' exceptions to the end, or make sure the 'hide' code goes AFTER the inclusion of typography.js)
     // (ought to be able to say \s instead of [ \n], but it doesn't seem to work on all browsers)
     if (supports_ligatures) str=str.replace(/([^f])fi/g,"$1\ufb01").replace(/([^f])fl/g,"$1\ufb02");
     // .replace(/ff/g,"\ufb00"); - doesn't always work so well (might be a different font)
