@@ -1,4 +1,4 @@
-// Web page typography helper v1.28 (c) 2011-2014,2016,2019 Silas S. Brown.
+// Web page typography helper v1.29 (c) 2011-2014,2016,2019 Silas S. Brown.
 // @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-v3-or-Later
 
 // Purpose: Adds typographical characters to your Web pages ONLY IF the
@@ -14,7 +14,8 @@
 var do_punctuation = true;
 // var do_ligatures = false; // Disadvantages of Unicode ligatures even in Web browsers that support them: find-as-you-type in (at least some versions of) Firefox etc doesn't work, and the Windows screenreader JAWS doesn't read them (although NVDA works).  We could disable ligatures if MSAA is in use, but detecting that requires Flash and can take time, plus it doesn't fix find-as-you-type.
 // However, find-as-you-type works just fine in Safari and Chrome, although I haven't been able to test any screenreaders on Mac etc:
-var do_ligatures = (navigator.userAgent.search("Chrome|Safari")>-1 && navigator.userAgent.search("Windows")==-1);
+var do_ligatures = (navigator.userAgent.search("Chrome|Safari")>-1 && navigator.userAgent.search("Windows")==-1 && !(typeof CSS != 'undefined' && CSS.supports && CSS.supports("font-variant-ligatures", "normal")));
+// (even on Chrome, we don't need them if we'll be doing ligatures anyway due to font-variant-ligatures defaulting to normal, e.g. Chrome 34, Firefox 34, Android Webview 37, Safari 9.3)
 
 if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-1) {
   // (Googlebot now executes Javascript, but we don't want
