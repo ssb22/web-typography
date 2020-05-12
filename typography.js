@@ -11,6 +11,11 @@
 // The script will also work on OIH attributes (old innerHTML)
 // in case you use my method of hiding some verbosity until a "Show" link is activated
 
+// Where to find history:
+// on GitHub at https://github.com/ssb22/web-typography
+// and on GitLab at https://gitlab.com/ssb22/web-typography
+// and on BitBucket https://bitbucket.org/ssb22/web-typography
+
 var do_punctuation = true;
 // var do_ligatures = false; // Disadvantages of Unicode ligatures even in Web browsers that support them: find-as-you-type in (at least some versions of) Firefox etc doesn't work, and the Windows screenreader JAWS doesn't read them (although NVDA works).  We could disable ligatures if MSAA is in use, but detecting that requires Flash and can take time, plus it doesn't fix find-as-you-type.
 // However, find-as-you-type works just fine in Safari and Chrome, although I haven't been able to test any screenreaders on Mac etc.  So, for now, we enable ligatures if and only if we're on Safari or Chrome on a non-Windows platform and it's too old to do ligatures by itself (e.g. Safari 6.1 on MacOS 10.7.5).
