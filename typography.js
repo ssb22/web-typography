@@ -1,4 +1,4 @@
-// Web page typography helper v1.3 (c) 2011-2014,2016,2019-2020 Silas S. Brown.
+// Web page typography helper v1.31 (c) 2011-2014,2016,2019-2020 Silas S. Brown.
 // @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-v3-or-Later
 
 // Purpose: Adds typographical characters to your Web pages ONLY IF the
@@ -19,7 +19,7 @@
 var do_punctuation = true, do_spacing = true;
 // var do_ligatures = false; // Disadvantages of Unicode ligatures even in Web browsers that support them: find-as-you-type in (at least some versions of) Firefox etc doesn't work, and the Windows screenreader JAWS doesn't read them (although NVDA works).  We could disable ligatures if MSAA is in use, but detecting that requires Flash and can take time, plus it doesn't fix find-as-you-type.
 // However, find-as-you-type works just fine in Safari and Chrome, although I haven't been able to test any screenreaders on Mac etc.  So, for now, we enable ligatures if and only if we're on Safari or Chrome on a non-Windows platform and it's too old to do ligatures by itself (e.g. Safari 6.1 on MacOS 10.7.5).
-var do_ligatures = (navigator.userAgent.search("Chrome|Safari")>-1 && navigator.userAgent.search("Windows")==-1 && !(typeof CSS != 'undefined' && CSS.supports && CSS.supports("font-variant-ligatures", "normal")));
+var do_ligatures = (navigator.userAgent.search("Chrome|Safari")>-1 && navigator.userAgent.search("Windows")==-1 && !(typeof(CSS) != 'undefined' && CSS.supports && CSS.supports("font-variant-ligatures", "normal")));
 
 if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-1) {
   // (Googlebot now executes Javascript, but we don't want
@@ -76,14 +76,15 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
     // (TODO how do we check fi and fl use the same font?  should do most of the time)
     return str;
   }
+  if(!Array.prototype.includes) Array.prototype.includes=function(v){var i;for(i=0;i < this.length;i++) if(this[i]==v) return true };
+  if(typeof(typography_omit)==undefined) typography_omit=["script","code","pre","tt","kbd","textarea","style","samp","var"];
   function treewalk(c) {
    c=c.firstChild;
    while(c) {
     switch (c.nodeType) {
     case 1: // element
         if (c.nodeName) {
-          var cc = c.nodeName.toLowerCase();
-          if (cc!="script" && cc!="code" && cc!="pre" && cc!="tt" && cc!="kbd" && cc!="textarea" && cc!="style" && cc!="samp" && cc!="var") {
+          if(!typography_omit.includes(c.nodeName.toLowerCase())) {
             treewalk(c);
             if (c.OIH) c.OIH=typefix(c.OIH);
           }
