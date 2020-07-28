@@ -21,6 +21,7 @@ var do_punctuation = true, do_spacing = true;
 // However, find-as-you-type works just fine in Safari and Chrome, although I haven't been able to test any screenreaders on Mac etc.  So, for now, we enable ligatures if and only if we're on Safari or Chrome on a non-Windows platform and it's too old to do ligatures by itself (e.g. Safari 6.1 on MacOS 10.7.5).
 var do_ligatures = (navigator.userAgent.search("Chrome|Safari")>-1 && navigator.userAgent.search("Windows")==-1 && !(typeof(CSS) != 'undefined' && CSS.supports && CSS.supports("font-variant-ligatures", "normal")));
 
+function fix_typography() {} // no-op unless we can do:
 if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-1) {
   // (Googlebot now executes Javascript, but we don't want
   // it caching the "typography done" versions of pages,
@@ -96,9 +97,9 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
     c=c.nextSibling;
    }
   }
-  treewalk(document);
+  fix_typography=function(){treewalk(document)}
   }
-}
+} fix_typography();
 
 // oh, and provide onclick for abbr tags:
 if(document.getElementsByTagName){var abbrs=document.getElementsByTagName('abbr');for(var i=0;i<abbrs.length;i++)abbrs[i].onclick=Function("alert(this.title)")}
