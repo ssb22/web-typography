@@ -1,4 +1,4 @@
-// Web page typography helper v1.31 (c) 2011-2014,2016,2019-2020 Silas S. Brown.
+// Web page typography helper v1.32 (c) 2011-2014,2016,2019-2020 Silas S. Brown.
 // @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-v3-or-Later
 
 // Purpose: Adds typographical characters to your Web pages ONLY IF the
