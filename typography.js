@@ -78,7 +78,7 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
     return str;
   }
   if(!Array.prototype.includes) Array.prototype.includes=function(v){var i;for(i=0;i < this.length;i++) if(this[i]==v) return true };
-  if(typeof(typography_omit)==undefined) typography_omit=["script","code","pre","tt","kbd","textarea","style","samp","var"];
+  if(typeof(typography_omit)=='undefined') typography_omit=["script","code","pre","tt","kbd","textarea","style","samp","var"];
   function treewalk(c) {
    c=c.firstChild;
    while(c) {
