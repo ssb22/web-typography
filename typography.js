@@ -15,6 +15,7 @@
 // on GitHub at https://github.com/ssb22/web-typography
 // and on GitLab at https://gitlab.com/ssb22/web-typography
 // and on BitBucket https://bitbucket.org/ssb22/web-typography
+// and at https://gitlab.developers.cam.ac.uk/ssb22/web-typography
 
 var do_punctuation = true, do_spacing = true;
 // var do_ligatures = false; // Disadvantages of Unicode ligatures even in Web browsers that support them: find-as-you-type in (at least some versions of) Firefox etc doesn't work, and the Windows screenreader JAWS doesn't read them (although NVDA works).  We could disable ligatures if MSAA is in use, but detecting that requires Flash and can take time, plus it doesn't fix find-as-you-type.
