@@ -1,4 +1,4 @@
-// Web page typography helper v1.32 (c) 2011-2014,2016,2019-2020 Silas S. Brown.
+// Web page typography helper v1.33 (c) 2011-2014,2016,2019-2020 Silas S. Brown.
 // @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-v3-or-Later
 
 // Purpose: Adds typographical characters to your Web pages ONLY IF the
@@ -70,8 +70,8 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
   function typefix(str) {
       if (supports_dashes) str=str.replace(/'neath /g,"\u2019neath ").replace(/ '11 /g," \u201911 ").replace(/'mid /g,"\u2019mid ").replace(/'s /g,"\u2019s ").replace(/---/g,"\u2014").replace(/--/g,"\u2013").replace(/\u2013>/g,"-->").replace(/<!\u2013/g,"<!--").replace(/[ \n]'/g," \u2018").replace(/``/g,"\u201C").replace(/`/g,"\u2018").replace(/^''([a-zA-Z])/,"\u201C$1").replace(/^'([a-zA-Z])/,"\u2018$1").replace(/''/g,"\u201D").replace(/'/g,"\u2019").replace(/[ \n]"/g," \u201C").replace(/^"([a-zA-Z])/,"\u201C$1").replace(/\("/g,"(\u201C").replace(/"/g,"\u201D").replace(/\=\u201D([^\u201D]*)\u201D/g,'="$1"');
     // - comments and = stuff are for OIH markup; may still get problems if OIH contains kbd/samp/var/tt/pre/code with -- or fi etc (in this case try inserting comments in between the hyphens), ligatures (ditto), or quotes (and can't work around by using &quot; - try adding 'undo' exceptions to the end, or make sure the 'hide' code goes AFTER the inclusion of typography.js)
-    // (ought to be able to say \s instead of [ \n], but it doesn't seem to work on all browsers)
-    if (supports_spacing) str=str.replace(/([A-Za-z][A-Za-z][.?!])\s+([^A-Za-z]*[A-Z])/g,"$1\u2002$2"); // use en-space between sentences (TODO: check for HTML comments between sentences?  close-quotes before the space?)
+    // (ought to be able to say \s instead of [ \n] above, but it doesn't seem to work on all browsers; however we will use it for supports_spacing below as that's less likely to look right on browsers that don't support \s anyway)
+    if (supports_spacing) str=str.replace(/([A-Za-z][A-Za-z][)]?(<!--.*?-->[)]?)*[.?!][\u2019\u201d]*(<!--.*?-->)*[\u2019\u201d]*)\s+((<!--.*?-->\s*)*[^A-Za-z]*[A-Z])/g,"$1\u2002$4"); // use en-space between sentences (must be after quote substitution above)
     if (supports_ligatures) str=str.replace(/([^f])fi/g,"$1\ufb01").replace(/([^f])fl/g,"$1\ufb02");
     // .replace(/ff/g,"\ufb00"); - doesn't always work so well (might be a different font)
     // also took out .replace(/ffl/g,"\ufb04").replace(/ffi/g,"\ufb03")
