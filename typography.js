@@ -1,28 +1,30 @@
-// Web page typography helper v1.33 (c) 2011-2014,2016,2019-2020 Silas S. Brown.
-// @license magnet:?xt=urn:btih:1f739d935676111cfff4b4693e3816e664797050&dn=gpl-3.0.txt GPL-v3-or-Later
+// @license magnet:?xt=urn:btih:8e4f440f4c65981c5bf93c76d35135ba5064d8b7&dn=apache-2.0.txt Apache-2.0
+// (the above comment is for LibreJS)
 
-// Purpose: Adds typographical characters to your Web pages ONLY IF the
-// browser supports them
-// (so they'll still work in basic/mobile browsers with ASCII only)
+// Web page typography helper v1.4 (c) 2011-2014,2016,2019-2020 Silas S. Brown.
 
-// Usage: At the END of the page (before </body>) do:
-// <script src="typography.js"></script>
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+// 
+//     http://www.apache.org/licenses/LICENSE-2.0
+// 
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
-// The script will also work on OIH attributes (old innerHTML)
-// in case you use my method of hiding some verbosity until a "Show" link is activated
-
-// Where to find history:
+// Where to find history and documentation:
 // on GitHub at https://github.com/ssb22/web-typography
 // and on GitLab at https://gitlab.com/ssb22/web-typography
 // and on BitBucket https://bitbucket.org/ssb22/web-typography
 // and at https://gitlab.developers.cam.ac.uk/ssb22/web-typography
 
 var do_punctuation = true, do_spacing = true;
-// var do_ligatures = false; // Disadvantages of Unicode ligatures even in Web browsers that support them: find-as-you-type in (at least some versions of) Firefox etc doesn't work, and the Windows screenreader JAWS doesn't read them (although NVDA works).  We could disable ligatures if MSAA is in use, but detecting that requires Flash and can take time, plus it doesn't fix find-as-you-type.
-// However, find-as-you-type works just fine in Safari and Chrome, although I haven't been able to test any screenreaders on Mac etc.  So, for now, we enable ligatures if and only if we're on Safari or Chrome on a non-Windows platform and it's too old to do ligatures by itself (e.g. Safari 6.1 on MacOS 10.7.5).
-var do_ligatures = (navigator.userAgent.search("Chrome|Safari")>-1 && navigator.userAgent.search("Windows")==-1 && !(typeof(CSS) != 'undefined' && CSS.supports && CSS.supports("font-variant-ligatures", "normal")));
+var do_ligatures = (navigator.userAgent.search("Chrome|Safari")>-1 && navigator.userAgent.search("Windows")==-1 && !(typeof(CSS) != 'undefined' && CSS.supports && CSS.supports("font-variant-ligatures", "normal"))); // find-as-you-type in (at least some versions of) Firefox etc doesn't work, and the Windows screenreader JAWS doesn't read them (although NVDA works).  We could disable ligatures if MSAA is in use, but detecting that requires Flash and can take time, plus it doesn't fix find-as-you-type.  But find-as-you-type works just fine in Safari and Chrome, although I haven't been able to test any screenreaders on Mac etc.  So, for now, we enable ligatures if and only if we're on Safari or Chrome on a non-Windows platform and it's too old to do ligatures by itself (e.g. Safari 6.1 on MacOS 10.7.5).
 
-function fix_typography() {} // no-op unless we can do:
+function fix_typography(){} function typefix(s){return s} // no-ops unless we can do:
 if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-1) {
   // (Googlebot now executes Javascript, but we don't want
   // it caching the "typography done" versions of pages,
@@ -67,9 +69,8 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
     supports_spacing = emWidth > enWidth;
   }
   if (supports_dashes || supports_ligatures || supports_spacing) {
-  function typefix(str) {
-      if (supports_dashes) str=str.replace(/'neath /g,"\u2019neath ").replace(/ '11 /g," \u201911 ").replace(/'mid /g,"\u2019mid ").replace(/'s /g,"\u2019s ").replace(/---/g,"\u2014").replace(/--/g,"\u2013").replace(/\u2013>/g,"-->").replace(/<!\u2013/g,"<!--").replace(/[ \n]'/g," \u2018").replace(/``/g,"\u201C").replace(/`/g,"\u2018").replace(/^''([a-zA-Z])/,"\u201C$1").replace(/^'([a-zA-Z])/,"\u2018$1").replace(/''/g,"\u201D").replace(/'/g,"\u2019").replace(/[ \n]"/g," \u201C").replace(/^"([a-zA-Z])/,"\u201C$1").replace(/\("/g,"(\u201C").replace(/"/g,"\u201D").replace(/\=\u201D([^\u201D]*)\u201D/g,'="$1"');
-    // - comments and = stuff are for OIH markup; may still get problems if OIH contains kbd/samp/var/tt/pre/code with -- or fi etc (in this case try inserting comments in between the hyphens), ligatures (ditto), or quotes (and can't work around by using &quot; - try adding 'undo' exceptions to the end, or make sure the 'hide' code goes AFTER the inclusion of typography.js)
+  typefix = function(str) {
+      if (supports_dashes) str=str.replace(/'neath /g,"\u2019neath ").replace(/ '11 /g," \u201911 ").replace(/'mid /g,"\u2019mid ").replace(/'s /g,"\u2019s ").replace(/---/g,"\u2014").replace(/--/g,"\u2013").replace(/[ \n]'/g," \u2018").replace(/``/g,"\u201C").replace(/`/g,"\u2018").replace(/^''([a-zA-Z])/,"\u201C$1").replace(/^'([a-zA-Z])/,"\u2018$1").replace(/''/g,"\u201D").replace(/'/g,"\u2019").replace(/[ \n]"/g," \u201C").replace(/^"([a-zA-Z])/,"\u201C$1").replace(/\("/g,"(\u201C").replace(/"/g,"\u201D");
     // (ought to be able to say \s instead of [ \n] above, but it doesn't seem to work on all browsers; however we will use it for supports_spacing below as that's less likely to look right on browsers that don't support \s anyway)
     if (supports_spacing) str=str.replace(/([A-Za-z][A-Za-z][)]?(<!--.*?-->[)]?)*[.?!][\u2019\u201d]*(<!--.*?-->)*[\u2019\u201d]*)\s+((<!--.*?-->\s*)*[^A-Za-z]*[A-Z])/g,"$1\u2002$4"); // use en-space between sentences (must be after quote substitution above)
     if (supports_ligatures) str=str.replace(/([^f])fi/g,"$1\ufb01").replace(/([^f])fl/g,"$1\ufb02");
@@ -81,6 +82,7 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
   if(!Array.prototype.includes) Array.prototype.includes=function(v){var i;for(i=0;i < this.length;i++) if(this[i]==v) return true };
   if(typeof(typography_omit)=='undefined') typography_omit=["script","code","pre","tt","kbd","textarea","style","samp","var"];
   function treewalk(c) {
+   var d=c.firstChild; while(d) { var n=d.nextSibling; if(d.nodeType==8 && d.previousSibling and d.nextSibling && d.previousSibling.nodeType==3 && d.nextSibling.nodeType==3) c.removeChild(d); else if(d.nodeType==3 && d.previousSibling && d.previousSibling.nodeType==3) { d.previousSibling.nodeValue += d.nodeValue; c.removeChild(d) } d=n; } // remove comments + merge text nodes (so can search/replace across them e.g. for sentence spacing if we had a comment between sentences)
    c=c.firstChild;
    while(c) {
     switch (c.nodeType) {
@@ -88,12 +90,11 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
         if (c.nodeName) {
           if(!typography_omit.includes(c.nodeName.toLowerCase())) {
             treewalk(c);
-            if (c.OIH) c.OIH=typefix(c.OIH);
           }
         }
         break;
     case 3: // text
-        c.nodeValue=typefix(c.nodeValue);
+        var v=c.nodeValue; var v2=typefix(v); if(v2!=v) c.nodeValue=v2;
     }
     c=c.nextSibling;
    }
@@ -102,7 +103,32 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
   }
 } fix_typography();
 
-// oh, and provide onclick for abbr tags:
+function hide0(id) {} // no-op unless we can do:
+if(document.getElementsByClassName && navigator.userAgent.slice(-6)!='Gecko/') { // 'Gecko/' at the end is presented to JS by UC Browser's transcoder, which lets you set v.OIH but then forgets it by the time show0 is called, so don't do it
+    function _h(v) {
+        if(location.hash) {
+            if(location.hash=="#"+v.id) return; // don't collapse if using id from an off-page link
+            var p=v.previousSibling; if(p && p.nodeType==1 && p.nodeName.toLowerCase()=='a' && location.hash=="#"+p.getAttribute("name")) return; // or if using <a name=".."></a> immediately before (for backward compatibility with browsers that can't jump to an id) and we jumped to that
+        }
+        if(v.innerHTML) { v.OIH=v.innerHTML; if(v.OIH==v.innerHTML) {
+            // looks like we have the browser support we need to collapse
+            var txt=v.getAttribute("data-txt"),opt=v.getAttribute("data-opt"),c1="",c2="";
+            if(opt=="centre") { c1="<center>"; c2="<"+"/center>"; }
+            var inline = (opt=="inline" || opt=="inline-ftn");
+            if(!txt) txt="Show details";
+            v.innerHTML=c1+"<a href=\"#"+v.id+"\" onClick=\"javascript:var v=document.getElementById('"+v.id+"'); v.innerHTML=v.OIH; v.style=v.OS; "+(opt=="inline-ftn"?"window.scrollTo(0,document.body.scrollHeight);v.scrollIntoView();v.parentElement.style='font-size:1em';":"")+"if(v.getElementsByTagName){var abbrs=v.getElementsByTagName('abbr');for(var i=0;i<abbrs.length;i++)abbrs[i].onclick=Function('alert(this.title)')}return false;\">"+typefix(txt)+"<"+"/a>"+c2;
+            v.OS=v.style; if(!inline)v.style="display:block!important"
+        } }
+    } hide0=function(id){_h(document.getElementById(id));}
+    var toC=document.getElementsByClassName("collapsed"),i,nID=1;for(i=0;i < toC.length; i++) {
+        var v=toC[i];
+        if(!v.id) { // make sure it has an ID
+            while(document.getElementById(""+nID)) ++nID;
+            v.id=""+nID;
+        } _h(v);
+    }
+}
+
 if(document.getElementsByTagName){var abbrs=document.getElementsByTagName('abbr');for(var i=0;i<abbrs.length;i++)abbrs[i].onclick=Function("alert(this.title)")}
 
 // @license-end
