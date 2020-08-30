@@ -82,7 +82,7 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
   if(!Array.prototype.includes) Array.prototype.includes=function(v){var i;for(i=0;i < this.length;i++) if(this[i]==v) return true };
   if(typeof(typography_omit)=='undefined') typography_omit=["script","code","pre","tt","kbd","textarea","style","samp","var"];
   function treewalk(c) {
-   var d=c.firstChild; while(d) { var n=d.nextSibling; if(d.nodeType==8 && d.previousSibling and d.nextSibling && d.previousSibling.nodeType==3 && d.nextSibling.nodeType==3) c.removeChild(d); else if(d.nodeType==3 && d.previousSibling && d.previousSibling.nodeType==3) { d.previousSibling.nodeValue += d.nodeValue; c.removeChild(d) } d=n; } // remove comments + merge text nodes (so can search/replace across them e.g. for sentence spacing if we had a comment between sentences)
+   var d=c.firstChild; while(d) { var n=d.nextSibling; if(d.nodeType==8 && d.previousSibling && d.nextSibling && d.previousSibling.nodeType==3 && d.nextSibling.nodeType==3) c.removeChild(d); else if(d.nodeType==3 && d.previousSibling && d.previousSibling.nodeType==3) { d.previousSibling.nodeValue += d.nodeValue; c.removeChild(d) } d=n; } // remove comments + merge text nodes (so can search/replace across them e.g. for sentence spacing if we had a comment between sentences)
    c=c.firstChild;
    while(c) {
     switch (c.nodeType) {
