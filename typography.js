@@ -49,7 +49,8 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
       d=document.createElement("DIV"),s=document.createElement("SPAN");
     s.setAttribute("lang","en"); // some systems don't make em-dash wider than en-dash in Chinese etc
   d.appendChild(s);
-  var supports_dashes = false, supports_ligatures = false, supports_spacing = false;
+  var supports_dashes = false, supports_ligatures = false,
+    supports_spacing = false, supports_0space = false;
   if (do_punctuation) {
     s.innerHTML = "\u2014";
     b.appendChild(d); var emWidth = s.offsetWidth; b.removeChild(d);
@@ -68,12 +69,17 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
     s.innerHTML = "\u2003";
     b.appendChild(d); var emWidth = s.offsetWidth; b.removeChild(d);
     supports_spacing = emWidth > enWidth;
+    if (supports_spacing) {
+      s.innerHTML = "\u200B";
+      b.appendChild(d); var s0Width = s.offsetWidth; b.removeChild(d);
+        supports_0space = (s0Width == 0);
+    }
   }
   if (supports_dashes || supports_ligatures || supports_spacing) {
   typefix = function(str) {
       if (supports_dashes) str=str.replace(/'neath /g,"\u2019neath ").replace(/ '11 /g," \u201911 ").replace(/'mid /g,"\u2019mid ").replace(/'s /g,"\u2019s ").replace(/---/g,"\u2014").replace(/--/g,"\u2013").replace(/[ \n]'/g," \u2018").replace(/``/g,"\u201C").replace(/`/g,"\u2018").replace(/^''([a-zA-Z])/,"\u201C$1").replace(/^'([a-zA-Z])/,"\u2018$1").replace(/''/g,"\u201D").replace(/'/g,"\u2019").replace(/[ \n]"/g," \u201C").replace(/^"([a-zA-Z])/,"\u201C$1").replace(/\("/g,"(\u201C").replace(/"/g,"\u201D");
     // (ought to be able to say \s instead of [ \n] above, but it doesn't seem to work on all browsers; however we will use it for supports_spacing below as that's less likely to look right on browsers that don't support \s anyway)
-    if (supports_spacing) str=str.replace(/([A-Za-z][A-Za-z][)]?(<!--.*?-->[)]?)*[.?!][\u2019\u201d]*(<!--.*?-->)*[\u2019\u201d]*)\s+((<!--.*?-->\s*)*[^A-Za-z]*[A-Z])/g,"$1\u2002$4"); // use en-space between sentences (must be after quote substitution above)
+    if (supports_spacing) str=str.replace(/([A-Za-z][A-Za-z][)]?(<!--.*?-->[)]?)*[.?!][\u2019\u201d]*(<!--.*?-->)*[\u2019\u201d]*)\s+((<!--.*?-->\s*)*[^A-Za-z]*[A-Z])/g,"$1\u2002"+(supports_0space?"\u200B":"")+"$4"); // use en-space between sentences (must be after quote substitution above), plus zero-width space (if supported) to confirm this is a breakpoint (as some versions of at least Webkit don't break at en-space by default)
     if (supports_ligatures) str=str.replace(/([^f])fi/g,"$1\ufb01").replace(/([^f])fl/g,"$1\ufb02");
     // .replace(/ff/g,"\ufb00"); - doesn't always work so well (might be a different font)
     // also took out .replace(/ffl/g,"\ufb04").replace(/ffi/g,"\ufb03")
