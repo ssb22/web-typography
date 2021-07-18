@@ -1,7 +1,7 @@
 // @license magnet:?xt=urn:btih:8e4f440f4c65981c5bf93c76d35135ba5064d8b7&dn=apache-2.0.txt Apache-2.0
 // (the above comment is for LibreJS)
 
-// Web page typography helper v1.4 (c) 2011-2014,2016,2019-2020 Silas S. Brown.
+// Web page typography helper v1.5 (c) 2011-2014,2016,2019-2021 Silas S. Brown.
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -101,7 +101,12 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
         }
         break;
     case 3: // text
-        var v=c.nodeValue; var v2=typefix(v); if(v2!=v) c.nodeValue=v2;
+        var v=c.nodeValue;
+        var followed = c.nextSibling && c.nextSibling.nodeType==1 && ["span","a"].includes(c.nextSibling.nodeName.toLowerCase());
+        if (followed) v += "A"; // so can match 'end of sentence. <span>More...' (TODO: should we check there is indeed a capital at start of span or anchor?)
+        var v2=typefix(v);
+        if (followed) v2=v2.slice(0,-1); // rm "A"
+        if(v2!=v) c.nodeValue=v2;
     }
     c=c.nextSibling;
    }
