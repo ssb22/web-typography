@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Convert simple HTML pages into Gemini pages with some typography
-# (c) 2021 Silas S. Brown
+# Version 1.1 (c) 2021 Silas S. Brown
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,41 +27,74 @@ d = sys.stdin.read()
 is_python2 = not type(d)==type(u"")
 if is_python2: d=d.decode('utf-8')
 
-# Remove extra newlines and whitespace
-assert not "<pre" in d.lower(), "pre not yet implemented" # TODO: use >
-d = ' '.join(d.split())
-
 # Remove comments and HEAD
 # (this assumes scripts are in comments, no <style> in body, etc)
-d = re.sub("<!--.*?-->","",d)
-d = re.sub(".*<[bB][oO][dD][yY]","<body",d)
+d = re.sub("<!--.*?-->","",d,flags=re.DOTALL)
+d = re.sub(".*<[bB][oO][dD][yY]","<body",d,flags=re.DOTALL)
+
+# Remove extra newlines and whitespace, except in <pre>
+assert not "%@space@%" in d
+d = re.sub("<pre[^a-z].*?</pre>",lambda m:re.sub("<pre[^>]+>","<pre>",m.group()).replace("\n","<br>").replace(" ","%@space@%"),d,flags=re.I+re.DOTALL)
+d = ' '.join(d.split())
+
+# Ensure line-breaks in blockquote stay in blockquote
+d = re.sub("<blockquote[^a-z].*?</blockquote>",lambda m:re.sub("<(/?)(p|br)([^a-z>][^>]*)?>",r"<\1blockquote>",m.group(),flags=re.I),d,flags=re.I)
+
+# Protect quotes, hyphens etc in <code> <kbd> etc
+assert not "%@quot" in d
+to_protect = '"'+"'-?!.`"
+def protect(s):
+    try: s = s.group()
+    except: pass # not a regex match
+    for i,c in enumerate(to_protect):
+        s = s.replace(c,"%@quot"+str(i))
+    return s
+def unprotect(s):
+    for i,c in enumerate(to_protect):
+        s = s.replace("%@quot"+str(i),c)
+    return s
+d = re.sub("<(kbd|code|tt|pre|samp|var)([^a-z>][^>]*)?>.*?</(kbd|code|tt|pre|samp|var)([^a-z>][^>]*)?>",protect,d,flags=re.I)
 
 # Apply simple Gemini formatting for some tags
-d = re.sub("<[pP][^>]*>","\n",d)
-d = re.sub("<[hH][^>]*>","\n# ",d) # TODO: heading levels
-d = re.sub("<[bB][rR][^>]*>","\n",d)
-d = re.sub("<[lL][iI][^>]*>","\n* ",d)
-d = re.sub("<[dD][tT][^>]*>","\n* ",d)
-d = re.sub("</[dDoOuU][lL][^>]*>","\n",d)
+d = re.sub("<[pP]([^A-Za-z>][^>]*)?>","\n",d)
+sharps = "#"
+for n in range(1,7):
+    if "<h"+str(n) in d.lower():
+        d = re.sub("<[hH]"+str(n)+"[^>]*>","\n"+sharps+" ",d)
+        if len(sharps) < 3: sharps += "#"
 d = re.sub("</[hH][^>]*>","\n",d)
+d = re.sub("<[bB][rR]([^A-Za-z>][^>]*)?>","\n",d)
+d = re.sub("<[lL][iI]([^A-Za-z>][^>]*)?>","\n* ",d) # TODO: 'ol' should be numbered instead (but beware if ul nested inside ol, etc)
+d = re.sub("<[dD][tT]([^A-Za-z>][^>]*)?>","\n* ",d)
+d = re.sub("<[dD][dD]([^A-Za-z>][^>]*)?>"," ",d) # dt-dd use space
+d = re.sub("<blockquote([^A-Za-z>][^>]*)?>","\n> ",d,flags=re.I)
+d = re.sub("</blockquote([^A-Za-z>][^>]*)?>","\n",d,flags=re.I)
+d = re.sub("</?[pP][rR][eE]([^A-Za-z>][^>]*)?>","\n"+protect("```")+"\n",d)
+d = re.sub("</[dDoOuU][lL]([^A-Za-z>][^>]*)?>","\n",d)
+d = re.sub("</?[dD][iI][vV]([^A-Za-z>][^>]*)?>","\n",d)
 
-# Non-standard * for emphasis (ok for em, probably not for strong that might be used to emphasize longer statements)
+# Non-standard * for emphasis (OK for <em>, probably not for <strong> that might be used to emphasize longer statements)
 d = re.sub("</*[eE][mM][^>]*>","*",d)
 
 # Remove other tags + handle HTML entities
 d = re.sub("<[^>]*>","",d)
-d = d.replace("&nbsp;"," ").replace("&amp;","&").replace("&lt;","<")
-assert not re.search("&[^ ;*];",d), "unhandled entity"
+try: import htmlentitydefs
+except: import html.entities as htmlentitydefs
+try: unichr # Python 2
+except: unichr = chr # Pythno 3
+d = re.sub("[&][a-zA-Z0-9]+;",lambda m:unichr(htmlentitydefs.name2codepoint.get(m.group()[1:-1],63)),d)
 
 # Apply typography.js rules
-# (TODO: omit pre from this if supporting)
 d = d.replace("'neath ",u"\u2019neath ").replace(" '11 ",u" \u201911 ").replace("'mid ",u"\u2019mid ").replace("'s ",u"\u2019s ").replace("---",u"\u2014").replace("--",u"\u2013").replace(" '",u" \u2018").replace("``",u"\u201C").replace("`",u"\u2018")
 d = re.sub("^''(?=[a-zA-Z])",u"\u201c",d,flags=re.M)
 d = re.sub("^'(?=[a-zA-Z])",u"\u2018",d,flags=re.M)
 d = d.replace("''",u"\u201D").replace("'",u"\u2019").replace(' "',u" \u201C")
 d = re.sub('^"(?=[a-zA-Z])',u"\u201C",d,flags=re.M).replace('("',u"(\u201C").replace('"',u"\u201D")
 d = re.sub(ur"([A-Za-z][A-Za-z][)]?([)]?)*[.?!][)\u2019\u201d]*[)\u2019\u201d]*) +(?=[^A-Za-z]*[A-Z])",u"\\1\u2002",d) # spacing
-d = re.sub("^\s+","",re.sub("\s*\n\s*","\n",d))
+
+# clean up, and restore <pre> formatting
+d = re.sub("^\s+","",re.sub("\s*\n\s*","\n",re.sub('  +',' ',d)))
+d = unprotect(d.replace("%@space@%"," "))
 
 if is_python2: d=d.encode('utf-8')
 sys.stdout.write(d)
