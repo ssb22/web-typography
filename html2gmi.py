@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Convert simple HTML pages into Gemini pages with some typography
-# Version 1.1 (c) 2021 Silas S. Brown
+# Version 1.2 (c) 2021 Silas S. Brown
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,6 +63,18 @@ for n in range(1,7):
         d = re.sub("<[hH]"+str(n)+"[^>]*>","\n"+sharps+" ",d)
         if len(sharps) < 3: sharps += "#"
 d = re.sub("</[hH][^>]*>","\n",d)
+n_stack = []
+def number(m):
+    global n_stack ; m = m.group()
+    if "<li" in m.lower() and n_stack[-1]:
+        n_stack[-1] += 1
+        r = "<br>"+'.'.join(str(i-1) for i in n_stack if i)+'. '
+        return r
+    elif "<ul" in m.lower(): n_stack.append(0)
+    elif "<ol" in m.lower(): n_stack.append(1)
+    elif "</ul" in m.lower() or "</ol" in m.lower(): n_stack.pop()
+    return m
+d = re.sub("</?([uo]l|li)([^>A-Za-z][^>]*)?>",number,d,flags=re.I)
 d = re.sub("<[bB][rR]([^A-Za-z>][^>]*)?>","\n",d)
 d = re.sub("<[lL][iI]([^A-Za-z>][^>]*)?>","\n* ",d) # TODO: 'ol' should be numbered instead (but beware if ul nested inside ol, etc)
 d = re.sub("<[dD][tT]([^A-Za-z>][^>]*)?>","\n* ",d)
@@ -72,6 +84,7 @@ d = re.sub("</blockquote([^A-Za-z>][^>]*)?>","\n",d,flags=re.I)
 d = re.sub("</?[pP][rR][eE]([^A-Za-z>][^>]*)?>","\n"+protect("```")+"\n",d)
 d = re.sub("</[dDoOuU][lL]([^A-Za-z>][^>]*)?>","\n",d)
 d = re.sub("</?[dD][iI][vV]([^A-Za-z>][^>]*)?>","\n",d)
+d = re.sub("<[hH][rR]([^A-Za-z>][^>]*)?>","\n",d)
 
 # Non-standard * for emphasis (OK for <em>, probably not for <strong> that might be used to emphasize longer statements)
 d = re.sub("</*[eE][mM][^>]*>","*",d)
