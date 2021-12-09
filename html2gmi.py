@@ -103,7 +103,7 @@ d = re.sub("^''(?=[a-zA-Z])",u"\u201c",d,flags=re.M)
 d = re.sub("^'(?=[a-zA-Z])",u"\u2018",d,flags=re.M)
 d = d.replace("''",u"\u201D").replace("'",u"\u2019").replace(' "',u" \u201C")
 d = re.sub('^"(?=[a-zA-Z])',u"\u201C",d,flags=re.M).replace('("',u"(\u201C").replace('"',u"\u201D")
-d = re.sub(ur"([A-Za-z][A-Za-z][)]?([)]?)*[.?!][)\u2019\u201d]*[)\u2019\u201d]*) +(?=[^A-Za-z]*[A-Z])",u"\\1\u2002",d) # spacing
+d = re.sub(ur"([A-Za-z][A-Za-z][)]?([)]?)*[.?!][)\u2019\u201d]*[)\u2019\u201d]*) +(?=[^A-Za-z0-9]*[A-Z])",u"\\1\u2002",d) # spacing
 
 # clean up, and restore <pre> formatting
 d = re.sub("^\s+","",re.sub("\s*\n\s*","\n",re.sub('  +',' ',d)))
