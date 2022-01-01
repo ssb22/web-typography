@@ -65,7 +65,7 @@ for n in range(1,7):
 d = re.sub("</[hH][^>]*>","\n",d)
 n_stack = []
 def number(m):
-    global n_stack ; m = m.group()
+    m = m.group()
     if "<li" in m.lower() and n_stack[-1]:
         n_stack[-1] += 1
         r = "<br>"+'.'.join(str(i-1) for i in n_stack if i)+'. '
