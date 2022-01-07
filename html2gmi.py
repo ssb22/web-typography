@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Convert simple HTML pages into Gemini pages with some typography
-# Version 1.2 (c) 2021 Silas S. Brown
+# Version 1.3 (c) 2021-22 Silas S. Brown
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,6 +26,8 @@ import re, sys
 d = sys.stdin.read()
 is_python2 = not type(d)==type(u"")
 if is_python2: d=d.decode('utf-8')
+
+assert not "<if " in d.lower() # we can't do htp macro processing
 
 # Remove comments and HEAD
 # (this assumes scripts are in comments, no <style> in body, etc)
@@ -85,6 +87,13 @@ d = re.sub("</?[pP][rR][eE]([^A-Za-z>][^>]*)?>","\n"+protect("```")+"\n",d)
 d = re.sub("</[dDoOuU][lL]([^A-Za-z>][^>]*)?>","\n",d)
 d = re.sub("</?[dD][iI][vV]([^A-Za-z>][^>]*)?>","\n",d)
 d = re.sub("<[hH][rR]([^A-Za-z>][^>]*)?>","\n",d)
+# and simple tables:
+d = re.sub("<[tT][rR]([^A-Za-z>][^>]*)?><[tT][hH]([^A-Za-z>][^>]*)?>","\n### ",d)
+d = re.sub("^### (.*<[tT][dD])",r"\1",d,flags=re.MULTILINE) # (this assumes 1 row = 1 line of HTML: removes subheading tag if not all row is headings, e.g. if only leftmost cell is heading)
+d = re.sub("</?[tT][rR]([^A-Za-z>][^>]*)?>","\n",d)
+d = re.sub("</[tT][hHdD]><[tT][hHdD]([^A-Za-z>][^>]*)?>"," - ",d) # or "---" for em-dash, but spaced hyphen might be better as it's not quite the same as running text (could try " -- " for spaced en-dash)
+d = re.sub("[)]</[rR][bB]><[rR][tT]([^A-Za-z>][^>]*)?>(.*?)</[rR][tT]>",r" \2)",d) # ruby w. close-paren around rb: relocate to end of rt + add space
+d = re.sub("<[rR][tT]([^A-Za-z>][^>]*)?>",r" ",d)
 
 # Non-standard * for emphasis (OK for <em>, probably not for <strong> that might be used to emphasize longer statements)
 d = re.sub("</*[eE][mM][^>]*>","*",d)
