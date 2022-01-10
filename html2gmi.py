@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Convert simple HTML pages into Gemini pages with some typography
-# Version 1.3 (c) 2021-22 Silas S. Brown
+# Version 1.4 (c) 2021-22 Silas S. Brown
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -22,10 +22,12 @@
 # and at https://gitlab.developers.cam.ac.uk/ssb22/web-typography
 # and in China: https://gitee.com/ssb22/web-typography
 
-import re, sys
+import re, sys, os
 d = sys.stdin.read()
 is_python2 = not type(d)==type(u"")
 if is_python2: d=d.decode('utf-8')
+try: from urlparse import urljoin
+except: from urllib.parse import urljoin
 
 assert not "<if " in d.lower() # we can't do htp macro processing
 
@@ -98,12 +100,24 @@ d = re.sub("<[rR][tT]([^A-Za-z>][^>]*)?>",r" ",d)
 # Non-standard * for emphasis (OK for <em>, probably not for <strong> that might be used to emphasize longer statements)
 d = re.sub("</*[eE][mM][^>]*>","*",d)
 
+if "base_href" in os.environ:
+    d = d.split("\n");i=0
+    while i<len(d):
+        for m in re.finditer("<a [^>]*href=(\"[^\"]*\"|[^ >]*)( [^>]*)?>(.*?)</a>",d[i],re.I):
+            newURL = urljoin(os.environ["base_href"],m.group(1).replace('"',''))
+            lastBit = newURL.split("/")[-1]
+            if "link_nonhtml_only" in os.environ and (not '.' in lastBit or '.htm' in lastBit or '#' in lastBit): pass # skip a link that looks like it goes to HTML rather than to a downloadable file
+            else:
+                i+=1;d.insert(i,"=> "+newURL+" "+m.groups()[-1])
+        i += 1
+    d = "\n".join(d)
+
 # Remove other tags + handle HTML entities
 d = re.sub("<[^>]*>","",d)
 try: import htmlentitydefs
 except: import html.entities as htmlentitydefs
 try: unichr # Python 2
-except: unichr = chr # Pythno 3
+except: unichr = chr # Python 3
 d = re.sub("[&][a-zA-Z0-9]+;",lambda m:unichr(htmlentitydefs.name2codepoint.get(m.group()[1:-1],63)),d)
 
 # Apply typography.js rules
