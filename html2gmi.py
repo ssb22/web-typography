@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Convert simple HTML pages into Gemini pages with some typography
-# Version 1.4 (c) 2021-22 Silas S. Brown
+# Version 1.41 (c) 2021-22 Silas S. Brown
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -108,7 +108,20 @@ if "base_href" in os.environ:
             lastBit = newURL.split("/")[-1]
             if "link_nonhtml_only" in os.environ and (not '.' in lastBit or '.htm' in lastBit or '#' in lastBit): pass # skip a link that looks like it goes to HTML rather than to a downloadable file
             else:
-                i+=1;d.insert(i,"=> "+newURL+" "+m.groups()[-1])
+                linkTxt = m.groups()[-1]
+                if linkTxt=="this" and lastBit: linkTxt = lastBit
+                if linkTxt.split()==re.sub("<[^>]*>","",d[i]).split(): del d[i] # entire line is the link, so just replace it
+                else: i+=1
+                d.insert(i,"=> "+newURL+" "+linkTxt)
+        i += 1
+    d = "\n".join(d)
+if "images" in os.environ: # set to list of allowed images (don't use base_href this time: some Gemini clients show images inline if and only if they're served over Gemini)
+    d = d.split("\n");i=0
+    while i<len(d):
+        for m in re.finditer("<img [^>]*src=(\"[^\"]*\"|[^ >]*)( [^>]*)?>",d[i],re.I):
+            src = m.group(1).replace('"','')
+            if src in os.environ["images"].split():
+                i+=1;d.insert(i,"=> "+src+" "+src) # TODO: or alt, if non-empty
         i += 1
     d = "\n".join(d)
 
