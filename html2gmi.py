@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Convert simple HTML pages into Gemini pages with some typography
-# Version 1.41 (c) 2021-22 Silas S. Brown
+# Version 1.42 (c) 2021-22 Silas S. Brown
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ to_protect = '"'+"'-?!.`"
 def protect(s):
     try: s = s.group()
     except: pass # not a regex match
+    s = s.replace('&quot;','"') # needed or &quot; quotes in <kbd> won't be protected from the rewrite
     for i,c in enumerate(to_protect):
         s = s.replace(c,"%@quot"+str(i))
     return s
