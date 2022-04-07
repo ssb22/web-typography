@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Convert simple HTML pages into Gemini pages with some typography
-# Version 1.45 (c) 2021-22 Silas S. Brown
+# Version 1.46 (c) 2021-22 Silas S. Brown
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -143,7 +143,7 @@ d = re.sub("^''(?=[a-zA-Z])",u"\u201c",d,flags=re.M)
 d = re.sub("^'(?=[a-zA-Z])",u"\u2018",d,flags=re.M)
 d = d.replace("''",u"\u201D").replace("'",u"\u2019").replace(' "',u" \u201C")
 d = re.sub('^"(?=[a-zA-Z])',u"\u201C",d,flags=re.M).replace('("',u"(\u201C").replace('"',u"\u201D")
-d = re.sub(ur"([A-Za-z0-9][A-Za-z0-9][)]?[.?!][)\u2019\u201d]*) +(?=[^A-Za-z0-9]*[A-Z])",u"\\1\u2002",d) # spacing
+d = re.sub(ur"([A-Za-z0-9][A-Za-z0-9][)\u2019\u201d]*[.?!][)\u2019\u201d]*) +(?=[^A-Za-z0-9]*[A-Z])",u"\\1\u2002",d) # spacing
 
 # clean up, and restore <pre> formatting
 d = re.sub("^\s+","",re.sub("\s*\n\s*","\n",re.sub('  +',' ',d)))
