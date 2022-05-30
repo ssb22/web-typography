@@ -20,7 +20,7 @@
 # and on GitLab at https://gitlab.com/ssb22/web-typography
 # and on BitBucket https://bitbucket.org/ssb22/web-typography
 # and at https://gitlab.developers.cam.ac.uk/ssb22/web-typography
-# and in China: https://gitee.com/ssb22/web-typography
+# and in China: git clone https://gitee.com/ssb22/web-typography
 
 import re, sys, os
 d = sys.stdin.read()
