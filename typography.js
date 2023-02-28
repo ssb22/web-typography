@@ -1,7 +1,7 @@
 // @license magnet:?xt=urn:btih:8e4f440f4c65981c5bf93c76d35135ba5064d8b7&dn=apache-2.0.txt Apache-2.0
 // (the above comment is for LibreJS)
 
-// Web page typography helper v1.55 (c) 2011-2014,2016,2019-2023 Silas S. Brown.
+// Web page typography helper v1.56 (c) 2011-2014,2016,2019-2023 Silas S. Brown.
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
   typefix = function(str) {
       if (supports_dashes) str=str.replace(/'neath /g,"\u2019neath ").replace(/ '11 /g," \u201911 ").replace(/'mid /g,"\u2019mid ").replace(/'s /g,"\u2019s ").replace(/---/g,"\u2014").replace(/--/g,"\u2013").replace(/[ \n]'/g," \u2018").replace(/``/g,"\u201C").replace(/`/g,"\u2018").replace(/^''([a-zA-Z])/,"\u201C$1").replace(/^'([a-zA-Z])/,"\u2018$1").replace(/''/g,"\u201D").replace(/'/g,"\u2019").replace(/[ \n]"/g," \u201C").replace(/^"([a-zA-Z])/,"\u201C$1").replace(/\("/g,"(\u201C").replace(/"/g,"\u201D");
     // (ought to be able to say \s instead of [ \n] above, but it doesn't seem to work on all browsers; however we will use it for supports_spacing below as that's less likely to look right on browsers that don't support \s anyway)
-    if (supports_spacing) str=str.replace(/([A-Za-z0-9\u2019][A-Za-z0-9][)\u2019\u201d]*(((<[/].*?>)|(<!--.*?-->))[)\u2019\u201d]*)*[.?!][)\u2019\u201d]*(<!--.*?-->)*[)\u2019\u201d]*)\s+((<[^>]*>|<!--.*?-->\s*)*[^A-Za-z0-9]*[A-Z])/g,"$1\u2002"+(supports_0space?"\u200B":"")+"$7"); // use en-space between sentences (must be after quote substitution above), plus zero-width space (if supported) to confirm this is a breakpoint (as some versions of at least Webkit don't break at en-space by default)
+    if (supports_spacing) str=str.replace(/((^|[A-Za-z0-9\u2019][A-Za-z0-9])[)\u2019\u201d]*[.?!][)\u2019\u201d]*)\s+([^A-Za-z0-9]*[A-Z])/g,"$1\u2002"+(supports_0space?"\u200B":"")+"$3"); // use en-space between sentences (must be after quote substitution above), plus zero-width space (if supported) to confirm this is a breakpoint (as some versions of at least Webkit don't break at en-space by default).  NB this regex is applied to text nodes only (not markup), so the ^| is needed to support things like "<strong>this</strong>. New sentence" (but we don't need to support "this. <strong>And" as that's done by 'followed' logic below)
     if (supports_ligatures) str=str.replace(/([^f])fi/g,"$1\ufb01").replace(/([^f])fl/g,"$1\ufb02");
     // .replace(/ff/g,"\ufb00"); - doesn't always work so well (might be a different font)
     // also took out .replace(/ffl/g,"\ufb04").replace(/ffi/g,"\ufb03")
