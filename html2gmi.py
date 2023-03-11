@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 # Convert simple HTML pages into Gemini pages with some typography
-# Version 1.48 (c) 2021-23 Silas S. Brown
+# Version 1.49 (c) 2021-23 Silas S. Brown
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -135,7 +135,9 @@ try: import htmlentitydefs
 except: import html.entities as htmlentitydefs
 try: unichr # Python 2
 except: unichr = chr # Python 3
-d = re.sub("[&][a-zA-Z0-9]+;",lambda m:unichr(htmlentitydefs.name2codepoint.get(m.group()[1:-1],63)),d)
+d = re.sub("[&]([a-zA-Z0-9]+);",lambda m:unichr(htmlentitydefs.name2codepoint.get(m.group(1),63)),d)
+d = re.sub("[&]#x([0-9A-Fa-f]+);",lambda m:unichr(int(m.group(1),16)),d)
+d = re.sub("[&]#([0-9]+);",lambda m:unichr(int(m.group(1))),d)
 
 # Apply typography.js rules
 d = d.replace("'neath ",u"\u2019neath ").replace(" '11 ",u" \u201911 ").replace("'mid ",u"\u2019mid ").replace("'s ",u"\u2019s ").replace("---",u"\u2014").replace("--",u"\u2013").replace(" '",u" \u2018").replace("``",u"\u201C").replace("`",u"\u2018")
