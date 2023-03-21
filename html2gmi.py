@@ -22,6 +22,10 @@
 # and at https://gitlab.developers.cam.ac.uk/ssb22/web-typography
 # and in China: https://gitee.com/ssb22/web-typography
 
+# Example output: most of the pages on
+# gemini://gemini.ctrl-c.club/~ssb22/
+# and gemini://tilde.pink/~ssb22/
+
 import re, sys, os
 d = sys.stdin.read()
 is_python2 = not type(d)==type(u"")
