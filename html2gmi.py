@@ -1,7 +1,8 @@
 #!/usr/bin/env python
+# (should work on both Python 2 and Python 3)
 
-# Convert simple HTML pages into Gemini pages with some typography
-# Version 1.5 (c) 2021-24 Silas S. Brown
+"""Convert simple HTML pages into Gemini pages with some typography
+Version 1.51 (c) 2021-24 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -27,6 +28,9 @@
 # and gemini://tilde.pink/~ssb22/
 
 import re, sys, os
+if sys.stdin.isatty():
+    print (__doc__+"\n\nUse python html2gmi.py < inputfile or use in a pipe")
+    sys.exit()
 d = sys.stdin.read()
 is_python2 = not type(d)==type(u"")
 if is_python2: d=d.decode('utf-8')
