@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.51 (c) 2021-24 Silas S. Brown.  License: Apache 2"""
+Version 1.52 (c) 2021-24 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -146,6 +146,7 @@ except: unichr = chr # Python 3
 d = re.sub("[&]([a-zA-Z0-9]+);",lambda m:unichr(0)+unichr(htmlentitydefs.name2codepoint.get(m.group(1),63))+unichr(0),d)
 d = re.sub("[&]#x([0-9A-Fa-f]+);",lambda m:unichr(0)+unichr(int(m.group(1),16))+unichr(0),d)
 d = re.sub("[&]#([0-9]+);",lambda m:unichr(int(m.group(1))),d).replace(unichr(0),u"")
+d = d.replace(unichr(0xAD),u"") # soft hyphen (meant to be an optional hyphenation point, e.g. for giant-print display, but some clients e.g. Elpher in Emacs might always display)
 
 # Apply typography.js rules
 d = d.replace("'neath ",u"\u2019neath ").replace(" '11 ",u" \u201911 ").replace("'mid ",u"\u2019mid ").replace("'s ",u"\u2019s ").replace("---",u"\u2014").replace("--",u"\u2013").replace(" '",u" \u2018").replace("``",u"\u201C").replace("`",u"\u2018")
