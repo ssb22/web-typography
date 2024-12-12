@@ -26,19 +26,16 @@ While the main point of this script is typography, it also provides:
 * an `onclick` function for every `abbr` tag (helps in touchscreen situations
   with no mouse if you're using `<abbr title="...">`)
 
-* a function to 'collapse' any part of the page enclosed in an element with
-  `class=collapsed` and replace it with a "Show details" link.
+* a function to 'collapse' parts of the page and replace it with
+  a "Show details" link (this is deprecated because we should be
+  using modern HTML's `<details>` and `<summary>` instead)
 
 Again if Javascript is not available then this is simply not done; the page
 should still be readable.
 
-The `class=collapsed` feature can be controlled with attributes `data-txt` (to
-set any text overriding the "Show details" default), and `data-opt` (can
-optionally be set to `centre`, `inline` or `inline-ftn`).  If you want to
-collapse only under certain circumstances (for example small screens) then you
-may omit `class=collapsed` and call `hide0(id)` yourself after loading
+Deprecated collapse function: call `hide0(id)` after loading
 `typography.js` (see below), where `id` is the `id=` attribute of your
-collapsible (it must have an `id` when calling the code this way).
+collapsible.
 
 Usage
 -----

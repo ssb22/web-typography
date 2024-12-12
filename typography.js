@@ -1,7 +1,7 @@
 // @license magnet:?xt=urn:btih:8e4f440f4c65981c5bf93c76d35135ba5064d8b7&dn=apache-2.0.txt Apache-2.0
 // (the above comment is for LibreJS)
 
-// Web page typography helper v1.56 (c) 2011-2014,2016,2019-2023 Silas S. Brown.
+// Web page typography helper v1.57 (c) 2011-2014,2016,2019-2024 Silas S. Brown.
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,12 +39,6 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
   // (If you have access to the site's /robots.txt then you
   // might also try "Disallow"ing the typography.js URL)
 
-  // (Note: it does NOT seem necessary to stop Googlebot from
-  // executing "collapse a paragraph behind a link" code - it
-  // seems to know how to expand that JS link and therefore
-  // will index the paragraph.  But I'm not so sure about
-  // letting it loose on the results of a typography script.)
-  
   var b=document.getElementsByTagName("BODY")[0],
       d=document.createElement("DIV"),s=document.createElement("SPAN");
     s.setAttribute("lang","en"); // some systems don't make em-dash wider than en-dash in Chinese etc
@@ -132,13 +126,6 @@ if(document.getElementsByClassName && navigator.userAgent.slice(-6)!='Gecko/') {
             v.OS=v.style; if(!inline)v.style="display:block!important"
         } }
     } hide0=function(id){_h(document.getElementById(id));}
-    var toC=document.getElementsByClassName("collapsed"),i,nID=1;for(i=0;i < toC.length; i++) {
-        var v=toC[i];
-        if(!v.id) { // make sure it has an ID
-            while(document.getElementById(""+nID)) ++nID;
-            v.id=""+nID;
-        } _h(v);
-    }
 }
 
 if(document.getElementsByTagName){var abbrs=document.getElementsByTagName('abbr');for(var i=0;i<abbrs.length;i++)abbrs[i].onclick=Function("alert(this.title)")}
