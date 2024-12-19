@@ -18,24 +18,11 @@ Therefore I generally write English text in ASCII, and use this Javascript code
 to assess the level of browser support before making substitutions.
 If Javascript is not available then my site should still be readable in ASCII.
 
-Other things this script does
------------------------------
-
-While the main point of this script is typography, it also provides:
-
-* an `onclick` function for every `abbr` tag (helps in touchscreen situations
-  with no mouse if you're using `<abbr title="...">`)
-
-* a function to 'collapse' parts of the page and replace it with
-  a "Show details" link (this is deprecated because we should be
-  using modern HTML's `<details>` and `<summary>` instead)
-
+While the main point of this script is typography, it also provides
+an `onclick` function for every `abbr` tag (helps in touchscreen situations
+with no mouse if you're using `<abbr title="...">`).
 Again if Javascript is not available then this is simply not done; the page
 should still be readable.
-
-Deprecated collapse function: call `hide0(id)` after loading
-`typography.js` (see below), where `id` is the `id=` attribute of your
-collapsible.
 
 Usage
 -----

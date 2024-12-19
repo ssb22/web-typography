@@ -1,7 +1,7 @@
 // @license magnet:?xt=urn:btih:8e4f440f4c65981c5bf93c76d35135ba5064d8b7&dn=apache-2.0.txt Apache-2.0
 // (the above comment is for LibreJS)
 
-// Web page typography helper v1.57 (c) 2011-2014,2016,2019-2024 Silas S. Brown.
+// Web page typography helper v1.58 (c) 2011-2014,2016,2019-2024 Silas S. Brown.
 
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -108,25 +108,6 @@ if(document.getElementsByTagName && navigator.userAgent.indexOf("Googlebot/")==-
   fix_typography=function(){treewalk(document)}
   }
 } fix_typography();
-
-function hide0(id) {} // no-op unless we can do:
-if(document.getElementsByClassName && navigator.userAgent.slice(-6)!='Gecko/') { // 'Gecko/' at the end is presented to JS by UC Browser's transcoder, which lets you set v.OIH but then forgets it by the time show0 is called, so don't do it
-    function _h(v) {
-        if(location.hash) {
-            if(location.hash=="#"+v.id) return; // don't collapse if using id from an off-page link
-            var p=v.previousSibling; if(p && p.nodeType==1 && p.nodeName.toLowerCase()=='a' && location.hash=="#"+p.getAttribute("name")) return; // or if using <a name=".."></a> immediately before (for backward compatibility with browsers that can't jump to an id) and we jumped to that
-        }
-        if(v.innerHTML) { v.OIH=v.innerHTML; if(v.OIH==v.innerHTML) {
-            // looks like we have the browser support we need to collapse
-            var txt=v.getAttribute("data-txt"),opt=v.getAttribute("data-opt"),c1="",c2="";
-            if(opt=="centre") { c1="<center>"; c2="<"+"/center>"; }
-            var inline = (opt=="inline" || opt=="inline-ftn");
-            if(!txt) txt="Show details";
-            v.innerHTML=c1+"<a href=\"#"+v.id+"\" onClick=\"javascript:var v=document.getElementById('"+v.id+"'); v.innerHTML=v.OIH; v.style=v.OS; "+(opt=="inline-ftn"?"window.scrollTo(0,document.body.scrollHeight);v.scrollIntoView();v.parentElement.style='font-size:1em';":"")+"if(v.getElementsByTagName){var abbrs=v.getElementsByTagName('abbr');for(var i=0;i<abbrs.length;i++)abbrs[i].onclick=Function('alert(this.title)')}return false;\">"+typefix(txt)+"<"+"/a>"+c2;
-            v.OS=v.style; if(!inline)v.style="display:block!important"
-        } }
-    } hide0=function(id){_h(document.getElementById(id));}
-}
 
 if(document.getElementsByTagName){var abbrs=document.getElementsByTagName('abbr');for(var i=0;i<abbrs.length;i++)abbrs[i].onclick=Function("alert(this.title)")}
 
