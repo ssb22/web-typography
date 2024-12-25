@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.52 (c) 2021-24 Silas S. Brown.  License: Apache 2"""
+Version 1.53 (c) 2021-24 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,6 +46,8 @@ d = re.sub(".*<[bB][oO][dD][yY]","<body",d,flags=re.DOTALL)
 
 # Remove extra newlines and whitespace, except in <pre>
 assert not "%@space@%" in d
+assert not "%@sharp@%" in d
+d = d.replace("#","%@sharp@%") # don't confuse comments with Gemini headings
 d = re.sub("<pre[^a-z].*?</pre>",lambda m:re.sub("<pre[^>]+>","<pre>",m.group()).replace("\n","<br>").replace(" ","%@space@%"),d,flags=re.I+re.DOTALL)
 d = ' '.join(d.split())
 
@@ -158,6 +160,7 @@ d = re.sub(u"([A-Za-z0-9\u2019][A-Za-z0-9][)\u2019\u201d]*[.?!][)\u2019\u201d]*)
 
 # clean up, and restore <pre> formatting
 d = re.sub("^\s+","",re.sub("\s*\n\s*","\n",re.sub('  +',' ',d)))
+d = d.replace("\n%@sharp@%",u"\n\u200B#").replace("%@sharp@%","#")
 d = unprotect(d.replace("%@space@%"," "))
 
 if is_python2: d=d.encode('utf-8')
