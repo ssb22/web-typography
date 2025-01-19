@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.53 (c) 2021-24 Silas S. Brown.  License: Apache 2"""
+Version 1.54 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ def unprotect(s):
 d = re.sub("<(kbd|code|tt|pre|samp|var)([^a-z>][^>]*)?>.*?</(kbd|code|tt|pre|samp|var)([^a-z>][^>]*)?>",protect,d,flags=re.I)
 
 # Apply simple Gemini formatting for some tags
-d = re.sub("<[pP]([^A-Za-z>][^>]*)?>","\n",d)
+d = re.sub("(?i)<(p|div|details|summary)([^A-Za-z>][^>]*)?>","\n",d)
 sharps = "#"
 for n in range(1,7):
     if "<h"+str(n) in d.lower():
@@ -95,11 +95,9 @@ d = re.sub("<[lL][iI]([^A-Za-z>][^>]*)?>","\n* ",d) # TODO: 'ol' should be numbe
 d = re.sub("<[dD][tT]([^A-Za-z>][^>]*)?>","\n* ",d)
 d = re.sub("<[dD][dD]([^A-Za-z>][^>]*)?>"," ",d) # dt-dd use space
 d = re.sub("<blockquote([^A-Za-z>][^>]*)?>","\n> ",d,flags=re.I)
-d = re.sub("</blockquote([^A-Za-z>][^>]*)?>","\n",d,flags=re.I)
 d = re.sub("</?[pP][rR][eE]([^A-Za-z>][^>]*)?>","\n"+protect("```")+"\n",d)
-d = re.sub("</[dDoOuU][lL]([^A-Za-z>][^>]*)?>","\n",d)
-d = re.sub("</?[dD][iI][vV]([^A-Za-z>][^>]*)?>","\n",d)
-d = re.sub("<[hH][rR]([^A-Za-z>][^>]*)?>","\n",d)
+d = re.sub("(?i)</(blockquote|dl|ol|ul|div|details|summary)([^A-Za-z>][^>]*)?>","\n",d)
+d = re.sub("(?i)<hr([^A-Za-z>][^>]*)?>","\n",d)
 # and simple tables:
 d = re.sub("<[tT][rR]([^A-Za-z>][^>]*)?><[tT][hH]([^A-Za-z>][^>]*)?>","\n### ",d)
 d = re.sub("^### (.*<[tT][dD])",r"\1",d,flags=re.MULTILINE) # (this assumes 1 row = 1 line of HTML: removes subheading tag if not all row is headings, e.g. if only leftmost cell is heading)
