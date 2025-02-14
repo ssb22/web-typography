@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.54 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
+Version 1.55 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -121,7 +121,7 @@ if "base_href" in os.environ:
                 if linkTxt=="this" and lastBit: linkTxt = lastBit
                 if re.sub("<[^>]*>","",linkTxt).split()==re.sub("<[^>]*>","",d[i]).split(): del d[i] # entire line is the link, so just replace it
                 else: i+=1
-                d.insert(i,"=> "+newURL+" "+linkTxt)
+                d.insert(i,"=> "+newURL.replace("https://github.com","https://www.github.com",1)+" "+linkTxt) # .replace() to work around a bug in deedum 2022.0406 for Android: if GitHub's own app is also installed on the same device, deedum says "Cannot find app to handle https://github.com", but with www is OK
         i += 1
     d = "\n".join(d)
 if "images" in os.environ: # set to list of allowed images.  Some Gemini clients can show images inline if and only if they're served over Gemini, but others can show only if they're HTTP, so we provide both if base_href is set as well.
