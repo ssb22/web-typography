@@ -93,7 +93,7 @@ d = re.sub("</?([uo]l|li)([^>A-Za-z][^>]*)?>",number,d,flags=re.I)
 d = re.sub("<[bB][rR]([^A-Za-z>][^>]*)?>","\n",d)
 d = re.sub("<[lL][iI]([^A-Za-z>][^>]*)?>","\n* ",d) # TODO: 'ol' should be numbered instead (but beware if ul nested inside ol, etc)
 d = re.sub("<[dD][tT]([^A-Za-z>][^>]*)?>","\n* ",d)
-d = re.sub("<[dD][dD]([^A-Za-z>][^>]*)?>"," ",d) # dt-dd use space
+d = re.sub("<[dD][dD]([^A-Za-z>][^>]*)?>",": ",d) # dt-dd transition
 d = re.sub("<blockquote([^A-Za-z>][^>]*)?>","\n> ",d,flags=re.I)
 d = re.sub("</?[pP][rR][eE]([^A-Za-z>][^>]*)?>","\n"+protect("```")+"\n",d)
 d = re.sub("(?i)</(blockquote|dl|ol|ul|div|details|summary)([^A-Za-z>][^>]*)?>","\n",d)
