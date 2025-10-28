@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.55 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
+Version 1.56 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -138,7 +138,7 @@ if "images" in os.environ: # set to list of allowed images.  Some Gemini clients
     d = "\n".join(d)
 
 # Remove other tags + handle HTML entities
-d = re.sub("<[^>]*>","",d)
+d = re.sub('<([^>"]*|("[^"]*"))+>',"",d)
 try: import htmlentitydefs
 except: import html.entities as htmlentitydefs
 try: unichr # Python 2
