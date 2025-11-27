@@ -85,10 +85,10 @@ def number(m):
     m = m.group()
     if "<li" in m.lower():
         if markdown_mode: r="%@quotS%@quotS"*(len(n_stack)-1)+(str(n_stack[-1])+'.' if n_stack[-1] else "*")
-        else:
+        elif n_stack[-1]:
             r = ''.join(str(i)+'.' for i in n_stack if i)
-            if not r: r = "*"
-        if n_stack[-1]: n_stack[-1] += 1
+            n_stack[-1] += 1
+        else: r = "*"
         return "<br>"+r+" "
     elif "<ul" in m.lower(): n_stack.append(0)
     elif "<ol" in m.lower(): n_stack.append(1)
