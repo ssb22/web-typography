@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.57 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
+Version 1.58 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -84,10 +84,9 @@ n_stack = []
 def number(m):
     m = m.group()
     if "<li" in m.lower():
-        if markdown_mode: r="%@quotS%@quotS"*(len(n_stack)-1)+(str(n_stack[-1])+'.' if n_stack[-1] else "*")
-        elif n_stack[-1]:
-            r = ''.join(str(i)+'.' for i in n_stack if i)
-            n_stack[-1] += 1
+        if n_stack[-1]: n_stack[-1] += 1 # whether markdown_mode or not
+        if markdown_mode: r="%@quotS%@quotS"*(len(n_stack)-1)+(str(n_stack[-1]-1)+'.' if n_stack[-1] else "*")
+        elif n_stack[-1]: r = ''.join(str(i-1)+'.' for i in n_stack if i) # i-1 for higher-up options too because we've incremented the counter and we want a suppoint of the old counter
         else: r = "*"
         return "<br>"+r+" "
     elif "<ul" in m.lower(): n_stack.append(0)
@@ -97,7 +96,7 @@ def number(m):
 d = re.sub("(?i)</?([uo]l|li)([^>a-z][^>]*)?>",number,d)
 d = re.sub("(?i)<br([^a-z>][^>]*)?>","\n",d)
 d = re.sub("(?i)<dt([^a-z>][^>]*)?>","\n* ",d)
-d = re.sub("(?i)<dd([^a-z>][^>]*)?>",":<dd> ",d).replace("::<dd>",":").replace(":<dd>",":") # dt-dd transition (but don't add second : if already one there)
+d = re.sub(r"(?i)\s*</dt>\s*","",re.sub("(?i)<dd([^a-z>][^>]*)?>",":<dd> ",d)).replace("::<dd>",":").replace(":<dd>",":") # dt-dd transition (but don't add second : if already one there)
 d = re.sub("(?i)<blockquote([^a-z>][^>]*)?>","\n> ",d)
 d = re.sub("(?i)</?pre([^a-z>][^>]*)?>","\n"+protect("```")+"\n",d)
 d = re.sub("(?i)</(blockquote|dl|ol|ul|div|details|summary)([^a-z>][^>]*)?>","\n",d)
