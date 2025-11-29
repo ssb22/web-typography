@@ -86,7 +86,7 @@ def number(m):
     if "<li" in m.lower():
         if n_stack[-1]: n_stack[-1] += 1 # whether markdown_mode or not
         if markdown_mode: r="%@quotS%@quotS"*(len(n_stack)-1)+(str(n_stack[-1]-1)+'.' if n_stack[-1] else "*")
-        elif n_stack[-1]: r = ''.join(str(i-1)+'.' for i in n_stack if i) # i-1 for higher-up options too because we've incremented the counter and we want a suppoint of the old counter
+        elif n_stack[-1]: r = ''.join(str(i-1)+'.' for i in n_stack if i) # i-1 for higher-up options too because we've incremented the counter and we want a sub-point of the old counter
         else: r = "*"
         return "<br>"+r+" "
     elif "<ul" in m.lower(): n_stack.append(0)
