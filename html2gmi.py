@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.58 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
+Version 1.59 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ Version 1.58 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
 
 import re, sys, os
 if sys.stdin.isatty():
-    print (__doc__+"\n\nUse python html2gmi.py < inputfile or use in a pipe\nAlso has a --markdown switch for generating simple md instead of gmi")
+    print (__doc__+"\n\nUse python html2gmi.py < inputfile or use in a pipe\nAlso has a --markdown switch for generating md instead of gmi")
     sys.exit()
 markdown_mode = "--markdown" in sys.argv
 d = sys.stdin.read()
@@ -85,7 +85,7 @@ def number(m):
     m = m.group()
     if "<li" in m.lower():
         if n_stack[-1]: n_stack[-1] += 1 # whether markdown_mode or not
-        if markdown_mode: r="%@quotS%@quotS"*(len(n_stack)-1)+(str(n_stack[-1]-1)+'.' if n_stack[-1] else "*")
+        if markdown_mode: r=''.join("%@quotS"*(len(str(i))+(2 if i else 1)) for i in n_stack[:-1])+(str(n_stack[-1]-1)+'.' if n_stack[-1] else "*")
         elif n_stack[-1]: r = ''.join(str(i-1)+'.' for i in n_stack if i) # i-1 for higher-up options too because we've incremented the counter and we want a sub-point of the old counter
         else: r = "*"
         return "<br>"+r+" "
@@ -116,33 +116,41 @@ if markdown_mode: d = re.sub("(?i)</*strong[^>]*>","**",re.sub("(?i)</*b[^a-z>]*
 if "base_href" in os.environ:
     d = d.split("\n");i=0
     while i<len(d):
+        j = i+1
         for m in re.finditer("(?i)<a [^>]*href=(\"[^\"]*\"|[^ >]*)( [^>]*)?>(.*?)</a>",d[i]):
             newURL = urljoin(os.environ["base_href"],m.group(1).replace('"',''))
             lastBit = newURL.split("/")[-1]
-            if "link_nonhtml_only" in os.environ and (not '.' in lastBit or '.htm' in lastBit or '#' in lastBit): pass # skip a link that looks like it goes to HTML rather than to a downloadable file
+            if newURL.startswith('#'): pass # (unless markdown_mode and we're allowing 'a name=' tags below)
+            elif "link_nonhtml_only" in os.environ and (not '.' in lastBit or '.htm' in lastBit or '#' in lastBit): pass # skip a link that looks like it goes to HTML rather than to a downloadable file
             else:
-                linkTxt = m.groups()[-1]
-                if linkTxt=="this" and lastBit: linkTxt = lastBit
-                if re.sub("<[^>]*>","",linkTxt).split()==re.sub("<[^>]*>","",d[i]).split(): del d[i] # entire line is the link, so just replace it
-                else: i+=1
-                d.insert(i,"=> "+newURL.replace("https://github.com","https://www.github.com",1)+" "+linkTxt) # .replace() to work around a bug in deedum 2022.0406 for Android: if GitHub's own app is also installed on the same device, deedum says "Cannot find app to handle https://github.com", but with www is OK
+              linkTxt = m.groups()[-1]
+              if markdown_mode: d[i] = d[i].replace(m.group(),"["+linkTxt+"]("+newURL+")")
+              else:
+                if re.sub("<[^>]*>","",linkTxt).split()==re.sub("<[^>]*>","",d[i]).split():
+                    del d[i]; j-=1 # entire line is the link, so just replace it
+                d.insert(j,"=> "+newURL.replace("https://github.com","https://www.github.com",1)+" "+linkTxt) # .replace() to work around a bug in deedum 2022.0406 for Android: if GitHub's own app is also installed on the same device, deedum says "Cannot find app to handle https://github.com", but with www is OK
+                j += 1 # in case multiple links on one para
         i += 1
     d = "\n".join(d)
 if "images" in os.environ: # set to list of allowed images.  Some Gemini clients can show images inline if and only if they're served over Gemini, but others can show only if they're HTTP, so we provide both if base_href is set as well.
     # as of end-2021: Ariane (and its commercial replacement?) shows Gemini images inline; Lagrange can click to show Gemini images inline; Deedum shows Gemini images in same app; Xenia shows just a box unless the images are http
     d = d.split("\n");i=0
     while i<len(d):
+        j = i+1
         for m in re.finditer("(?i)<img [^>]*src=(\"[^\"]*\"|[^ >]*)( [^>]*)?>",d[i]):
             src = m.group(1).replace('"','')
             if src in os.environ["images"].split():
-                i+=1;d.insert(i,"=> "+src+" "+src) # TODO: or alt, if non-empty
+              alt = src # TODO: or alt, if non-empty
+              if markdown_mode: d[i] = d[i].replace(m.group(),"!["+alt+"]("+(urljoin(os.environ["base_href"],src) if "base_href" in os.environ else src)+")")
+              else:
+                d.insert(j,"=> "+src+" "+alt);j+=1
                 if "base_href" in os.environ:
-                    i+=1;d.insert(i,"=> "+urljoin(os.environ["base_href"],src)+" "+src+" over HTTP")
+                    d.insert(j,"=> "+urljoin(os.environ["base_href"],src)+" "+alt+" over HTTP");j+=1
         i += 1
     d = "\n".join(d)
 
 # Remove other tags + handle HTML entities
-d = re.sub('<([^>"]*|("[^"]*"))+>',"",d)
+d = re.sub('<([^>"]*|("[^"]*"))+>',lambda m:m.group() if markdown_mode and m.group().lower() in ["<sup>","</sup>","<sub>","</sub>"] else "",d) # GitHub/GitLab also allows <a name=""></a> but not sure if "jump to" navigation is really that useful in its md renderer
 try: import htmlentitydefs
 except: import html.entities as htmlentitydefs
 try: unichr # Python 2
