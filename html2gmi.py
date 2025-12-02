@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.59 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
+Version 1.6 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -118,9 +118,10 @@ if "base_href" in os.environ:
     while i<len(d):
         j = i+1
         for m in re.finditer("(?i)<a [^>]*href=(\"[^\"]*\"|[^ >]*)( [^>]*)?>(.*?)</a>",d[i]):
-            newURL = urljoin(os.environ["base_href"],m.group(1).replace('"',''))
+            href = m.group(1).replace('"','')
+            newURL = urljoin(os.environ["base_href"],href)
             lastBit = newURL.split("/")[-1]
-            if newURL.startswith('#'): pass # (unless markdown_mode and we're allowing 'a name=' tags below)
+            if href.startswith('%@sharp@%'): pass # (unless markdown_mode and we're allowing 'a name=' tags below, in which case still need to use href INSTEAD OF newURL)
             elif "link_nonhtml_only" in os.environ and (not '.' in lastBit or '.htm' in lastBit or '#' in lastBit): pass # skip a link that looks like it goes to HTML rather than to a downloadable file
             else:
               linkTxt = m.groups()[-1]
@@ -150,7 +151,7 @@ if "images" in os.environ: # set to list of allowed images.  Some Gemini clients
     d = "\n".join(d)
 
 # Remove other tags + handle HTML entities
-d = re.sub('<([^>"]*|("[^"]*"))+>',lambda m:m.group() if markdown_mode and m.group().lower() in ["<sup>","</sup>","<sub>","</sub>"] else "",d) # GitHub/GitLab also allows <a name=""></a> but not sure if "jump to" navigation is really that useful in its md renderer
+d = re.sub('<([^>"]*|("[^"]*"))+>',lambda m:m.group().lower() if markdown_mode and m.group().lower() in ["<sup>","</sup>","<sub>","</sub>"] else "",d) # GitHub/GitLab also allows <a name=""></a> but not sure if "jump to" navigation is really that useful in its md renderer
 try: import htmlentitydefs
 except: import html.entities as htmlentitydefs
 try: unichr # Python 2
