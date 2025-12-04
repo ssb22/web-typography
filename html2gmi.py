@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.6 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
+Version 1.61 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -133,14 +133,14 @@ if "base_href" in os.environ:
                 j += 1 # in case multiple links on one para
         i += 1
     d = "\n".join(d)
-if "images" in os.environ: # set to list of allowed images.  Some Gemini clients can show images inline if and only if they're served over Gemini, but others can show only if they're HTTP, so we provide both if base_href is set as well.
+if "images" in os.environ: # set to list of allowed images or "all".  Some Gemini clients can show images inline if and only if they're served over Gemini, but others can show only if they're HTTP, so we provide both if base_href is set as well.
     # as of end-2021: Ariane (and its commercial replacement?) shows Gemini images inline; Lagrange can click to show Gemini images inline; Deedum shows Gemini images in same app; Xenia shows just a box unless the images are http
     d = d.split("\n");i=0
     while i<len(d):
         j = i+1
         for m in re.finditer("(?i)<img [^>]*src=(\"[^\"]*\"|[^ >]*)( [^>]*)?>",d[i]):
             src = m.group(1).replace('"','')
-            if src in os.environ["images"].split():
+            if src in os.environ["images"].split() or os.environ["images"]=="all":
               alt = src # TODO: or alt, if non-empty
               if markdown_mode: d[i] = d[i].replace(m.group(),"!["+alt+"]("+(urljoin(os.environ["base_href"],src) if "base_href" in os.environ else src)+")")
               else:
@@ -166,8 +166,9 @@ d = d.replace("'neath ",u"\u2019neath ").replace(" '11 ",u" \u201911 ").replace(
 d = re.sub("(?mi)^''(?=[a-z])",u"\u201c",d)
 d = re.sub("(?mi)^'(?=[a-z])",u"\u2018",d)
 d = d.replace("''",u"\u201D").replace("'",u"\u2019").replace(' "',u" \u201C")
+d = re.sub(u'\u2014"(?=[A-Za-z])',u"\u2014\u201C",d)
 d = re.sub('(?mi)^"(?=[a-z])',u"\u201C",d).replace('("',u"(\u201C").replace('"',u"\u201D")
-d = re.sub(u"([A-Za-z0-9\u2019][A-Za-z0-9][)\u2019\u201d]*[.?!][)\u2019\u201d]*) +(?=[^A-Za-z0-9]*[A-Z])",u"\\1  " if markdown_mode else u"\\1\u2002",d) # spacing
+d = re.sub(u"([A-Za-z0-9\u2019][A-Za-z0-9][)\u2019\u201d]*[.?!][)\u2019\u201d]*)\xA0* +(?=[^A-Za-z0-9]*[A-Z])",u"\\1  " if markdown_mode else u"\\1\u2002",d) # spacing
 
 # clean up, and restore <pre> formatting
 d = re.sub("^\s+","",re.sub("\s*\n\s*","\n",re.sub('  +',' ',d)))
