@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.62 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
+Version 1.63 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -48,8 +48,9 @@ d = re.sub("(?s)<!--.*?-->","",
 # Remove extra newlines and whitespace, except in <pre>
 assert not "%@space@%" in d
 assert not "%@sharp@%" in d
+assert not "%@brInPre@%" in d
 d = d.replace("#","%@sharp@%") # don't confuse comments with Gemini headings
-d = re.sub("(?si)<pre[^a-z].*?</pre>",lambda m:re.sub("<pre[^>]+>","<pre>",m.group()).replace("\n","<br>"+("%@space@%" if markdown_mode else "")).replace(" ","%@space@%"),d)
+d = re.sub("(?si)<pre[^a-z].*?</pre>",lambda m:re.sub("<pre[^>]+>","<pre>",m.group()).replace("\n","%@brInPre@%").replace(" ","%@space@%"),d)
 d = ' '.join(d.split())
 
 # Ensure line-breaks in blockquote stay in blockquote
@@ -70,7 +71,7 @@ def unprotect(s):
     for i,c in enumerate(to_protect):
         s = s.replace("%@quot"+str(i),c)
     return s.replace("%@quotS"," ")
-d = re.sub("(?i)<(kbd|code|tt|pre|samp|var)([^a-z>][^>]*)?>.*?</(kbd|code|tt|pre|samp|var)([^a-z>][^>]*)?>",protect,d) # (pre will be all on one line with <br> by this time)
+d = re.sub("(?i)<(kbd|code|tt|pre|samp|var)([^a-z>][^>]*)?>.*?</(kbd|code|tt|pre|samp|var)([^a-z>][^>]*)?>",protect,d) # (pre will be all on one line with %@brInPre@% by this time)
 
 # Apply simple Gemini formatting for some tags
 sharps = "#"
@@ -89,6 +90,7 @@ def number(m):
         elif n_stack[-1]: r = ''.join(str(i-1)+'.' for i in n_stack if i) # i-1 for higher-up options too because we've incremented the counter and we want a sub-point of the old counter
         else: r = "*"
         return "\n"+r+" "
+    elif "</li" in m.lower(): return ""
     elif "<ul" in m.lower(): n_stack.append(0)
     elif "<ol" in m.lower(): n_stack.append(1)
     elif "</ul" in m.lower() or "</ol" in m.lower(): n_stack.pop()
@@ -99,7 +101,7 @@ d = re.sub("(?i)<dt([^a-z>][^>]*)?>","\n* ",d)
 d = re.sub(r"(?i)\s*</dt>\s*","",re.sub("(?i)<dd([^a-z>][^>]*)?>",":<dd> ",d)).replace("::<dd>",":").replace(":<dd>",":") # dt-dd transition (but don't add second : if already one there)
 d = re.sub("(?i)<blockquote([^a-z>][^>]*)?>","\n> ",d)
 d = re.sub("(?i)</?pre([^a-z>][^>]*)?>","\n"+protect("```")+"\n",d)
-d = re.sub("(?i)</(blockquote|dl|ol|ul|div|details|summary)([^a-z>][^>]*)?>","\n",d)
+d = re.sub("(?i)</(blockquote|dl)([^a-z>][^>]*)?>","\n",d)
 d = re.sub("(?i)<hr([^a-z>][^>]*)?>","\n",d)
 # and simple tables:
 d = re.sub("(?i)<tr([^a-z>][^>]*)?><th([^a-z>][^>]*)?>","\n### ",d)
@@ -112,7 +114,7 @@ d = re.sub("(?i)<rt([^a-z>][^>]*)?>",r" ",d)
 # Non-standard * for emphasis (OK for <em>, probably not for <strong> that might be used to emphasize longer statements)
 d = re.sub("(?i)<(em|i)([^a-z>][^>]*)?>","%@emphSpace@%*",re.sub("(?i)</(em|i)([^a-z>][^>]*)?>","*%@emphSpace@%",d))
 if markdown_mode: d = re.sub("(?i)<(strong|b)([^a-z>][^>]*)?>","%@emphSpace@%**",re.sub("(?i)</(strong|b)([^a-z>][^>]*)?>","**%@emphSpace@%",d))
-d = re.sub(u"([-'\"\u2014\u2018\u201C])%@emphSpace@%",r"\1",re.sub(u"%@emphSpace@%([-'\"\u2014\u2019\u201D.;!?])",r"\1",d)).replace("%@emphSpace@%"," ")
+d = re.sub(u"([-'\"\u2014\u2018\u201C`([])%@emphSpace@%",r"\1",re.sub(u"%@emphSpace@%([-'\"\u2014\u2019\u201D\xA0.,;:!?)\\]])",r"\1",d)).replace("%@emphSpace@%"," ")
 
 if "base_href" in os.environ:
     d = d.split("\n");i=0
@@ -176,6 +178,8 @@ d = re.sub("^\s+","",re.sub("\s*\n\s*","\n",re.sub('  +',' ',d)))
 if markdown_mode: d=re.sub("\n(?!((%@quotS)*(\\*|[1-9][0-9]*[.]) )|(%@space@%)|("+protect("```")+"))","\n\n",d).replace(protect("```")+"\n\n",protect("```")+"\n")
 d = d.replace("\n%@sharp@%",u"\n\u200B#").replace("%@sharp@%","#")
 d = unprotect(d.replace("%@space@%"," "))
+d = re.sub("\s*```","\n```",d.replace("%@brInPre@%","\n"))
+while "\n\n\n" in d: d=d.replace("\n\n\n","\n\n")
 
 if is_python2: d=d.encode('utf-8')
 sys.stdout.write(d)
