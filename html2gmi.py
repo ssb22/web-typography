@@ -179,7 +179,8 @@ if markdown_mode: d=re.sub("\n(?!((%@quotS)*(\\*|[1-9][0-9]*[.]) )|(%@space@%)|(
 d = d.replace("\n%@sharp@%",u"\n\u200B#").replace("%@sharp@%","#")
 d = unprotect(d.replace("%@space@%"," "))
 d = re.sub("\s*```","\n```",d.replace("%@brInPre@%","\n"))
-while "\n\n\n" in d: d=d.replace("\n\n\n","\n\n")
+d = re.sub("(?<=\n) +(?=\n)","",d) # whitespace-only lines -> blank
+while "\n\n\n" in d: d=d.replace("\n\n\n","\n\n") # should never need more than one blank line
 
 if is_python2: d=d.encode('utf-8')
 sys.stdout.write(d)
