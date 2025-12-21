@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.61 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
+Version 1.62 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -73,7 +73,6 @@ def unprotect(s):
 d = re.sub("(?i)<(kbd|code|tt|pre|samp|var)([^a-z>][^>]*)?>.*?</(kbd|code|tt|pre|samp|var)([^a-z>][^>]*)?>",protect,d) # (pre will be all on one line with <br> by this time)
 
 # Apply simple Gemini formatting for some tags
-d = re.sub("(?i)<(p|div|details|summary)([^a-z>][^>]*)?>","\n",d)
 sharps = "#"
 for n in range(1,7):
     if "<h"+str(n) in d.lower():
@@ -81,20 +80,21 @@ for n in range(1,7):
         if len(sharps) < 3: sharps += "#"
 d = re.sub("</[hH][^>]*>","\n",d)
 n_stack = []
+def indents(cut): return ''.join("%@quotS"*(len(str(i))+(2 if i else 1)) for i in n_stack[:cut])
 def number(m):
     m = m.group()
     if "<li" in m.lower():
         if n_stack[-1]: n_stack[-1] += 1 # whether markdown_mode or not
-        if markdown_mode: r=''.join("%@quotS"*(len(str(i))+(2 if i else 1)) for i in n_stack[:-1])+(str(n_stack[-1]-1)+'.' if n_stack[-1] else "*")
+        if markdown_mode: r=indents(-1)+(str(n_stack[-1]-1)+'.' if n_stack[-1] else "*")
         elif n_stack[-1]: r = ''.join(str(i-1)+'.' for i in n_stack if i) # i-1 for higher-up options too because we've incremented the counter and we want a sub-point of the old counter
         else: r = "*"
-        return "<br>"+r+" "
+        return "\n"+r+" "
     elif "<ul" in m.lower(): n_stack.append(0)
     elif "<ol" in m.lower(): n_stack.append(1)
     elif "</ul" in m.lower() or "</ol" in m.lower(): n_stack.pop()
-    return m
-d = re.sub("(?i)</?([uo]l|li)([^>a-z][^>]*)?>",number,d)
-d = re.sub("(?i)<br([^a-z>][^>]*)?>","\n",d)
+    elif markdown_mode: return "\n"+indents(None)
+    return "\n"
+d = re.sub("(?i)</?([uo]l|li|p|div|details|summary|br)([^>a-z][^>]*)?>",number,d)
 d = re.sub("(?i)<dt([^a-z>][^>]*)?>","\n* ",d)
 d = re.sub(r"(?i)\s*</dt>\s*","",re.sub("(?i)<dd([^a-z>][^>]*)?>",":<dd> ",d)).replace("::<dd>",":").replace(":<dd>",":") # dt-dd transition (but don't add second : if already one there)
 d = re.sub("(?i)<blockquote([^a-z>][^>]*)?>","\n> ",d)
@@ -110,8 +110,9 @@ d = re.sub("(?i)[)]</rb><rt([^a-z>][^>]*)?>(.*?)</rt>",r" \2)",d) # ruby w. clos
 d = re.sub("(?i)<rt([^a-z>][^>]*)?>",r" ",d)
 
 # Non-standard * for emphasis (OK for <em>, probably not for <strong> that might be used to emphasize longer statements)
-d = re.sub("(?i)</*em[^>]*>","*",d)
-if markdown_mode: d = re.sub("(?i)</*strong[^>]*>","**",re.sub("(?i)</*b[^a-z>]*>","**",d))
+d = re.sub("(?i)<(em|i)([^a-z>][^>]*)?>","%@emphSpace@%*",re.sub("(?i)</(em|i)([^a-z>][^>]*)?>","*%@emphSpace@%",d))
+if markdown_mode: d = re.sub("(?i)<(strong|b)([^a-z>][^>]*)?>","%@emphSpace@%**",re.sub("(?i)</(strong|b)([^a-z>][^>]*)?>","**%@emphSpace@%",d))
+d = re.sub(u"([-'\"\u2014\u2018\u201C])%@emphSpace@%",r"\1",re.sub(u"%@emphSpace@%([-'\"\u2014\u2019\u201D.;!?])",r"\1",d)).replace("%@emphSpace@%"," ")
 
 if "base_href" in os.environ:
     d = d.split("\n");i=0
