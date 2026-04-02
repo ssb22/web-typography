@@ -2,7 +2,7 @@
 # (should work on both Python 2 and Python 3)
 
 """Convert simple HTML pages into Gemini pages with some typography
-Version 1.63 (c) 2021-25 Silas S. Brown.  License: Apache 2"""
+Version 1.63 (c) 2021-26 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -174,11 +174,11 @@ d = re.sub('(?mi)^"(?=[a-z])',u"\u201C",d).replace('("',u"(\u201C").replace('"',
 d = re.sub(u"([A-Za-z0-9\u2019][A-Za-z0-9][)\u2019\u201d]*[.?!][)\u2019\u201d]*)\xA0* +(?=[^A-Za-z0-9]*[A-Z])",u"\\1  " if markdown_mode else u"\\1\u2002",d) # spacing
 
 # clean up, and restore <pre> formatting
-d = re.sub("^\s+","",re.sub("\s*\n\s*","\n",re.sub('  +',' ',d)))
+d = re.sub(r"^\s+","",re.sub("\\s*\n\\s*","\n",re.sub('  +',' ',d)))
 if markdown_mode: d=re.sub("\n(?!((%@quotS)*(\\*|[1-9][0-9]*[.]) )|(%@space@%)|("+protect("```")+"))","\n\n",d).replace(protect("```")+"\n\n",protect("```")+"\n")
 d = d.replace("\n%@sharp@%",u"\n\u200B#").replace("%@sharp@%","#")
 d = unprotect(d.replace("%@space@%"," "))
-d = re.sub("\s*```","\n```",d.replace("%@brInPre@%","\n"))
+d = re.sub(r"\s*```","\n```",d.replace("%@brInPre@%","\n"))
 d = re.sub("(?<=\n) +(?=\n)","",d) # whitespace-only lines -> blank
 while "\n\n\n" in d: d=d.replace("\n\n\n","\n\n") # should never need more than one blank line
 
