@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # (should work on both Python 2 and Python 3)
 
-"""Convert simple HTML pages into Gemini pages with some typography
-Version 1.63 (c) 2021-26 Silas S. Brown.  License: Apache 2"""
+"""Convert simple HTML pages into Gemini or Markdown, with typography
+Version 1.64 (c) 2021-26 Silas S. Brown.  License: Apache 2"""
 
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,7 +29,7 @@ Version 1.63 (c) 2021-26 Silas S. Brown.  License: Apache 2"""
 
 import re, sys, os
 if sys.stdin.isatty():
-    print (__doc__+"\n\nUse python html2gmi.py < inputfile or use in a pipe\nAlso has a --markdown switch for generating md instead of gmi")
+    print (__doc__+"\n\nUse python html2gmi.py < inputfile or use in a pipe\nUse --markdown to generate md instead of gmi")
     sys.exit()
 markdown_mode = "--markdown" in sys.argv
 d = sys.stdin.read()
@@ -84,7 +84,8 @@ n_stack = []
 def indents(cut): return ''.join("%@quotS"*(len(str(i))+(2 if i else 1)) for i in n_stack[:cut])
 def number(m):
     m = m.group()
-    if "<li" in m.lower():
+    if "<li" in m.lower() or "<dt" in m.lower():
+        if "<dt" in m.lower(): n_stack.append(0)
         if n_stack[-1]: n_stack[-1] += 1 # whether markdown_mode or not
         if markdown_mode: r=indents(-1)+(str(n_stack[-1]-1)+'.' if n_stack[-1] else "*")
         elif n_stack[-1]: r = ''.join(str(i-1)+'.' for i in n_stack if i) # i-1 for higher-up options too because we've incremented the counter and we want a sub-point of the old counter
@@ -93,12 +94,11 @@ def number(m):
     elif "</li" in m.lower(): return ""
     elif "<ul" in m.lower(): n_stack.append(0)
     elif "<ol" in m.lower(): n_stack.append(1)
-    elif "</ul" in m.lower() or "</ol" in m.lower(): n_stack.pop()
+    elif "</ul" in m.lower() or "</ol" in m.lower() or "</dd" in m.lower(): n_stack.pop()
     elif markdown_mode: return "\n"+indents(None)
     return "\n"
-d = re.sub("(?i)</?([uo]l|li|p|div|details|summary|br)([^>a-z][^>]*)?>",number,d)
-d = re.sub("(?i)<dt([^a-z>][^>]*)?>","\n* ",d)
-d = re.sub(r"(?i)\s*</dt>\s*","",re.sub("(?i)<dd([^a-z>][^>]*)?>",":<dd> ",d)).replace("::<dd>",":").replace(":<dd>",":") # dt-dd transition (but don't add second : if already one there)
+d = re.sub(r"(?i)\s*</dt>\s*","",re.sub("(?i)<dd([^a-z>][^>]*)?>",":<dd> ",d)).replace("::<dd>",":").replace(":<dd>",":") # dt-dd transition (but don't add second : if already one there) - important to do this before number, which takes <dt> and </dd>
+d = re.sub("(?i)</?([uo]l|li|p|div|details|summary|br|d[td])([^>a-z][^>]*)?>",number,d)
 d = re.sub("(?i)<blockquote([^a-z>][^>]*)?>","\n> ",d)
 d = re.sub("(?i)</?pre([^a-z>][^>]*)?>","\n"+protect("```")+"\n",d)
 d = re.sub("(?i)</(blockquote|dl)([^a-z>][^>]*)?>","\n",d)
